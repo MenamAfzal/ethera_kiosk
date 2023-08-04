@@ -1,0 +1,16 @@
+current directory: /Users/mac/Programming/ReactNative/WorkProjects/ethera_kiosk/vendor/bundle/ruby/2.7.0/gems/json-2.6.3/ext/json
+/Users/mac/.rvm/rubies/ruby-2.7.6/bin/ruby -I /Users/mac/.rvm/rubies/ruby-2.7.6/lib/ruby/site_ruby/2.7.0 extconf.rb
+creating Makefile
+
+current directory: /Users/mac/Programming/ReactNative/WorkProjects/ethera_kiosk/vendor/bundle/ruby/2.7.0/gems/json-2.6.3/ext/json
+make DESTDIR\= sitearchdir\=./.gem.20230803-4779-14c7pnt sitelibdir\=./.gem.20230803-4779-14c7pnt clean
+
+current directory: /Users/mac/Programming/ReactNative/WorkProjects/ethera_kiosk/vendor/bundle/ruby/2.7.0/gems/json-2.6.3/ext/json
+make DESTDIR\= sitearchdir\=./.gem.20230803-4779-14c7pnt sitelibdir\=./.gem.20230803-4779-14c7pnt
+make: Nothing to be done for `all'.
+
+current directory: /Users/mac/Programming/ReactNative/WorkProjects/ethera_kiosk/vendor/bundle/ruby/2.7.0/gems/json-2.6.3/ext/json
+make DESTDIR\= sitearchdir\=./.gem.20230803-4779-14c7pnt sitelibdir\=./.gem.20230803-4779-14c7pnt install
+
+current directory: /Users/mac/Programming/ReactNative/WorkProjects/ethera_kiosk/vendor/bundle/ruby/2.7.0/gems/json-2.6.3/ext/json
+make DESTDIR\= sitearchdir\=./.gem.20230803-4779-14c7pnt sitelibdir\=./.gem.20230803-4779-14c7pnt clean
