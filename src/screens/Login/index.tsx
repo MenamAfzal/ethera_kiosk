@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useRef} from 'react';
 import {
   View,
   Text,
@@ -6,128 +6,167 @@ import {
   Image,
   StyleSheet,
   TextInput,
+  KeyboardAvoidingView,
 } from 'react-native';
 import {scale} from 'react-native-size-matters';
 import {useNavigation} from '@react-navigation/native';
-// import {zodResolver} from '@hookform/resolvers/zod';
-// import {useForm} from 'react-hook-form';
-// import * as z from 'zod';
 import {Entypo} from '@expo/vector-icons';
 import {FontAwesome} from '@expo/vector-icons';
+import {Formik} from 'formik';
+import * as yup from 'yup';
 
 import {colors} from '../../theme';
 import Logo from '../../components/Logo';
 
-// const schema = z.object({
-//   cnic: z.string({
-//     required_error: 'Please Enter Your CNIC Number',
-//   }),
-//   firstName: z.string({
-//     required_error: 'First Name is required',
-//   }),
-//   lastName: z.string({
-//     required_error: 'Last Name is required',
-//   }),
-//   email: z
-//     .string({
-//       required_error: 'Email is required',
-//     })
-//     .email('Invalid email format'),
-//   bikeNumber: z.string({
-//     required_error: 'Bike Number is required',
-//   }),
-// });
-
-// export type FormType = z.infer<typeof schema>;
+const loginValidationSchema = yup.object().shape({
+  email: yup.string().required('Email is required').email('Not a valid Email'),
+  password: yup
+    .string()
+    .min(6, () => `Password must be at least 6 characters`)
+    .required('Password is required'),
+});
 
 const Login = () => {
   const navigation = useNavigation();
-
-  // const {handleSubmit, control, setValue, setError, formState, resetField} =
-  //   useForm<FormType>({
-  //     resolver: zodResolver(schema),
-  //   });
+  let password_ref = useRef(null);
 
   const onLoginPress = () => {
     //@ts-ignore
     navigation.navigate('CheckIn');
   };
+
+  const submitHandler = (values: {email: string; password: string}) => {
+    const {email, password} = values;
+    console.log(values);
+  };
+
   return (
-    <View style={styles.baseContainer}>
-      <View
-        style={{
-          marginTop: scale(60),
-        }}>
-        <Logo />
-      </View>
-
-      <Text style={styles.loginText}>Please Login</Text>
-      <View style={styles.inputView}>
-        <View style={{borderRightColor: colors.black, borderRightWidth: 0.5}}>
-          <Entypo
-            name="user"
-            size={24}
-            color="#1D5D9B"
-            style={{
-              paddingHorizontal: scale(12),
-              paddingVertical: scale(12),
-            }}
-          />
-        </View>
-        <TextInput
-          placeholder="Email"
-          placeholderTextColor={colors.bodyTextColor}
-          multiline={true}
-          style={styles.input}
-          onChangeText={text => {}}
-          // value={description}
-          underlineColorAndroid="transparent"></TextInput>
-      </View>
-      <View style={styles.inputView}>
-        <View style={{borderRightColor: colors.black, borderRightWidth: 0.5}}>
-          <Entypo
-            name="lock"
-            size={24}
-            color="#1D5D9B"
-            style={{
-              paddingHorizontal: scale(12),
-              paddingVertical: scale(12),
-            }}
-          />
-        </View>
-        <TextInput
-          placeholder="Password"
-          placeholderTextColor={colors.bodyTextColor}
-          multiline={true}
-          style={styles.input}
-          onChangeText={text => {}}
-          // value={description}
-          underlineColorAndroid="transparent"></TextInput>
-      </View>
-      <View style={styles.inputView}>
-        <Text
+    <KeyboardAvoidingView style={{flex: 1}}>
+      <View style={styles.baseContainer}>
+        <View
           style={{
-            fontSize: 20,
-            color: colors.bodyTextColor,
-            paddingHorizontal: scale(10),
-            flexGrow: 1,
+            marginTop: scale(60),
           }}>
-          Select Location
-        </Text>
-        {/* <FontAwesome
-          name="sort-down"
-          size={24}
-          color="black"
-          style={{paddingHorizontal: scale(10)}}
-        /> */}
-      </View>
-
-      <TouchableOpacity onPress={onLoginPress}>
-        <View style={styles.loginButton}>
-          <Text style={styles.buttonText}>Login</Text>
+          <Logo />
         </View>
-      </TouchableOpacity>
-    </View>
+
+        <Text style={styles.loginText}>Please Login</Text>
+        <Formik
+          initialValues={{email: '', password: ''}}
+          validateOnMount={true}
+          validationSchema={loginValidationSchema}
+          // onSubmit={values => console.log(values)}
+
+          onSubmit={values => submitHandler(values)}>
+          {({
+            handleChange,
+            handleBlur,
+            handleSubmit,
+            values,
+            touched,
+            errors,
+          }) => (
+            <>
+              <View style={styles.inputView}>
+                <View
+                  style={{
+                    borderRightColor: colors.black,
+                    borderRightWidth: 0.5,
+                  }}>
+                  <Entypo
+                    name="user"
+                    size={24}
+                    color="#1D5D9B"
+                    style={{
+                      paddingHorizontal: scale(12),
+                      paddingVertical: scale(12),
+                    }}
+                  />
+                </View>
+                <TextInput
+                  placeholder="Email"
+                  placeholderTextColor={colors.bodyTextColor}
+                  multiline={true}
+                  style={styles.input}
+                  onChangeText={value => {
+                    handleChange('email')(value);
+                    errors.email = '';
+                  }}
+                  value={values.email}
+                  underlineColorAndroid="transparent"
+                  // @ts-ignore
+                  onSubmitEditing={() => password_ref?.current.focus()}
+                  autoCapitalize="words"
+                  autoFocus={true}
+                />
+              </View>
+              {errors.email && touched.email && (
+                <Text style={styles.errMsg}>{errors.email}</Text>
+              )}
+              <View style={styles.inputView}>
+                <View
+                  style={{
+                    borderRightColor: colors.black,
+                    borderRightWidth: 0.5,
+                  }}>
+                  <Entypo
+                    name="lock"
+                    size={24}
+                    color="#1D5D9B"
+                    style={{
+                      paddingHorizontal: scale(12),
+                      paddingVertical: scale(12),
+                    }}
+                  />
+                </View>
+                <TextInput
+                  placeholder="Password"
+                  ref={password_ref}
+                  placeholderTextColor={colors.bodyTextColor}
+                  multiline={true}
+                  style={styles.input}
+                  onChangeText={value => {
+                    handleChange('password')(value);
+                    errors.password = '';
+                  }}
+                  value={values.password}
+                  underlineColorAndroid="transparent"
+                />
+              </View>
+              {errors.password && touched.password && (
+                <Text style={styles.errMsg}>{errors.password}</Text>
+              )}
+
+              <View style={styles.inputView}>
+                <Text
+                  style={{
+                    fontSize: 20,
+                    color: colors.bodyTextColor,
+                    paddingHorizontal: scale(10),
+                    flexGrow: 1,
+                  }}>
+                  Select Location
+                </Text>
+                <FontAwesome
+                  name="sort-down"
+                  size={24}
+                  color="black"
+                  style={{paddingHorizontal: scale(10)}}
+                />
+              </View>
+
+              <TouchableOpacity
+                // onPress={onLoginPress}
+                onPress={handleSubmit}>
+                <View style={styles.loginButton}>
+                  <Text style={styles.buttonText}>Login</Text>
+                </View>
+              </TouchableOpacity>
+            </>
+          )}
+        </Formik>
+      </View>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -173,4 +212,11 @@ const styles = StyleSheet.create({
     marginTop: scale(30),
   },
   buttonText: {color: colors.white, fontSize: 18, fontWeight: '500'},
+  errMsg: {
+    color: 'red',
+    alignSelf: 'flex-start',
+    width: scale(250),
+    marginLeft: scale(25),
+    marginTop: scale(5),
+  },
 });
