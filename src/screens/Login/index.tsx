@@ -1,4 +1,4 @@
-import React, {useRef} from 'react';
+import React, {useEffect, useRef} from 'react';
 import {
   View,
   Text,
@@ -14,9 +14,13 @@ import {Entypo} from '@expo/vector-icons';
 import {FontAwesome} from '@expo/vector-icons';
 import {Formik} from 'formik';
 import * as yup from 'yup';
+import {useDispatch, useSelector} from 'react-redux';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import {colors} from '../../theme';
 import Logo from '../../components/Logo';
+import {loginUser} from '../../redux/actions/authActions';
+import {getLocation} from '../../redux/actions/getLocations';
 
 const loginValidationSchema = yup.object().shape({
   email: yup.string().required('Email is required').email('Not a valid Email'),
@@ -29,16 +33,30 @@ const loginValidationSchema = yup.object().shape({
 const Login = () => {
   const navigation = useNavigation();
   let password_ref = useRef(null);
-
-  const onLoginPress = () => {
-    //@ts-ignore
-    navigation.navigate('CheckIn');
-  };
+  const dispatch = useDispatch();
+  const isLoggedIn = useSelector(state => state?.auth?.isLoggedIn);
+  const token = useSelector(state => state?.auth?.userToken);
 
   const submitHandler = (values: {email: string; password: string}) => {
-    const {email, password} = values;
-    console.log(values);
+    //@ts-ignore
+    dispatch(loginUser(values));
   };
+
+  const isAuthenticated = async () => {
+    if (isLoggedIn) {
+      await AsyncStorage.setItem('token', token);
+    }
+  };
+
+  useEffect(() => {
+    isAuthenticated();
+  }, [isLoggedIn]);
+
+  useEffect(() => {
+    console.log('in use');
+    //@ts-ignore
+    dispatch(getLocation());
+  }, []);
 
   return (
     <KeyboardAvoidingView style={{flex: 1}}>
@@ -52,7 +70,7 @@ const Login = () => {
 
         <Text style={styles.loginText}>Please Login</Text>
         <Formik
-          initialValues={{email: '', password: ''}}
+          initialValues={{email: 'meenam@gmail.com', password: '123456'}}
           validateOnMount={true}
           validationSchema={loginValidationSchema}
           // onSubmit={values => console.log(values)}
@@ -156,7 +174,7 @@ const Login = () => {
               </View>
 
               <TouchableOpacity
-                // onPress={onLoginPress}
+                //@ts-ignore
                 onPress={handleSubmit}>
                 <View style={styles.loginButton}>
                   <Text style={styles.buttonText}>Login</Text>
