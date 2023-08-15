@@ -41,13 +41,10 @@ export const RootNavigator = () => {
 
   useEffect(() => {
     if (authSelector?.isLogout) {
-      console.log('first');
       setToken('');
     } else if (!authSelector?.isLoggedIn) {
-      console.log('second');
       checkUserLoginAction();
     } else {
-      console.log('third');
       setToken(authSelector?.userToken);
     }
   }, [authSelector?.isLoggedIn, authSelector?.isLogout]);

@@ -4,7 +4,6 @@ import {createAsyncThunk} from '@reduxjs/toolkit';
 const backendURL = 'https://backend-dot-konav2-dev.wl.r.appspot.com';
 
 export const getLocation = createAsyncThunk('get/location', async () => {
-  console.log('in action');
   try {
     const config = {
       headers: {

@@ -12,13 +12,13 @@ export const loginUser = createAsyncThunk(
           'Content-Type': 'application/json',
         },
       };
-      console.log('email, password', email, password);
+      console.log(email, password);
       const response = await axios.post(
         // `${backendURL}/api/login`,
         'https://backend-dot-konav2-dev.wl.r.appspot.com/api/login',
         {
-          email: 'test130@gmail.com',
-          password: 'Ethera2021!',
+          email,
+          password,
         },
         config,
       );

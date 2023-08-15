@@ -1,4 +1,4 @@
-import React, {useEffect, useRef} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
   View,
   Text,
@@ -11,16 +11,17 @@ import {
 import {scale} from 'react-native-size-matters';
 import {useNavigation} from '@react-navigation/native';
 import {Entypo} from '@expo/vector-icons';
-import {FontAwesome} from '@expo/vector-icons';
 import {Formik} from 'formik';
 import * as yup from 'yup';
 import {useDispatch, useSelector} from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {Dropdown} from 'react-native-element-dropdown';
+import {ActivityIndicator} from 'react-native';
 
 import {colors} from '../../theme';
 import Logo from '../../components/Logo';
 import {loginUser} from '../../redux/actions/authActions';
-import {getLocation} from '../../redux/actions/getLocations';
+import {getLocation} from '../../redux/actions/locationAction';
 
 const loginValidationSchema = yup.object().shape({
   email: yup.string().required('Email is required').email('Not a valid Email'),
@@ -34,29 +35,45 @@ const Login = () => {
   const navigation = useNavigation();
   let password_ref = useRef(null);
   const dispatch = useDispatch();
-  const isLoggedIn = useSelector(state => state?.auth?.isLoggedIn);
-  const token = useSelector(state => state?.auth?.userToken);
+  const authSelector = useSelector(state => state?.auth);
+  const location = useSelector(state => state?.location?.locationsList);
+  const [value, setValue] = useState(null);
+  const [locationError, setLocationError] = useState('');
+  const [isFocus, setIsFocus] = useState(false);
+  const [locationList, setLocationList] = useState([]);
+  console.log('value', value);
 
   const submitHandler = (values: {email: string; password: string}) => {
-    //@ts-ignore
-    dispatch(loginUser(values));
+    if (!value) {
+      setLocationError('Please Set a Location');
+    } else {
+      //@ts-ignore
+      dispatch(loginUser(values));
+    }
   };
 
   const isAuthenticated = async () => {
-    if (isLoggedIn) {
-      await AsyncStorage.setItem('token', token);
+    if (authSelector?.isLoggedIn) {
+      await AsyncStorage.setItem('token', authSelector?.token);
     }
   };
 
   useEffect(() => {
     isAuthenticated();
-  }, [isLoggedIn]);
+  }, [authSelector?.isLoggedIn]);
 
   useEffect(() => {
-    console.log('in use');
     //@ts-ignore
     dispatch(getLocation());
   }, []);
+
+  useEffect(() => {
+    const data = location.map((item, index) => ({
+      label: item.name,
+      value: item.id,
+    }));
+    setLocationList(data);
+  }, [location]);
 
   return (
     <KeyboardAvoidingView style={{flex: 1}}>
@@ -70,7 +87,8 @@ const Login = () => {
 
         <Text style={styles.loginText}>Please Login</Text>
         <Formik
-          initialValues={{email: 'meenam@gmail.com', password: '123456'}}
+          // initialValues={{email: 'test130@gmail.com', password: 'Ethera2021!'}}
+          initialValues={{email: '', password: ''}}
           validateOnMount={true}
           validationSchema={loginValidationSchema}
           // onSubmit={values => console.log(values)}
@@ -154,30 +172,48 @@ const Login = () => {
               {errors.password && touched.password && (
                 <Text style={styles.errMsg}>{errors.password}</Text>
               )}
+              {authSelector?.error ? (
+                <Text style={styles.errMsg}>{authSelector?.error}</Text>
+              ) : null}
 
-              <View style={styles.inputView}>
-                <Text
-                  style={{
-                    fontSize: 20,
-                    color: colors.bodyTextColor,
-                    paddingHorizontal: scale(10),
-                    flexGrow: 1,
-                  }}>
-                  Select Location
-                </Text>
-                <FontAwesome
-                  name="sort-down"
-                  size={24}
-                  color="black"
-                  style={{paddingHorizontal: scale(10)}}
+              <View style={styles.container}>
+                {/* {renderLabel()} */}
+                <Dropdown
+                  style={[styles.dropdown, isFocus && {borderColor: 'black'}]}
+                  placeholderStyle={styles.placeholderStyle}
+                  selectedTextStyle={styles.selectedTextStyle}
+                  inputSearchStyle={styles.inputSearchStyle}
+                  iconStyle={styles.iconStyle}
+                  data={locationList}
+                  maxHeight={300}
+                  labelField="label"
+                  valueField="value"
+                  placeholder={!isFocus ? 'Select item' : '...'}
+                  value={value}
+                  onFocus={() => {
+                    setIsFocus(true), setLocationError('');
+                  }}
+                  onBlur={() => setIsFocus(false)}
+                  onChange={item => {
+                    //@ts-ignore
+                    setValue(item.value);
+                    setIsFocus(false);
+                  }}
                 />
               </View>
+              {locationError ? (
+                <Text style={styles.errMsg}>Select a location</Text>
+              ) : null}
 
               <TouchableOpacity
                 //@ts-ignore
                 onPress={handleSubmit}>
                 <View style={styles.loginButton}>
-                  <Text style={styles.buttonText}>Login</Text>
+                  {authSelector?.loading ? (
+                    <ActivityIndicator color={'#fff'} />
+                  ) : (
+                    <Text style={styles.buttonText}>Login</Text>
+                  )}
                 </View>
               </TouchableOpacity>
             </>
@@ -197,7 +233,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.base,
   },
   loginText: {
-    fontSize: 28,
+    fontSize: scale(24),
     color: 'black',
     marginTop: scale(15),
     fontWeight: '500',
@@ -205,7 +241,7 @@ const styles = StyleSheet.create({
   input: {
     flexGrow: 1,
     textAlignVertical: 'center',
-    fontSize: 20,
+    fontSize: scale(16),
     paddingLeft: scale(15),
   },
   inputView: {
@@ -217,7 +253,7 @@ const styles = StyleSheet.create({
     marginTop: scale(15),
     borderColor: 'black',
     borderWidth: 0.5,
-    fontSize: 20,
+    fontSize: scale(18),
     alignItems: 'center',
   },
   loginButton: {
@@ -229,12 +265,51 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginTop: scale(30),
   },
-  buttonText: {color: colors.white, fontSize: 18, fontWeight: '500'},
+  buttonText: {color: colors.white, fontSize: scale(18), fontWeight: '500'},
   errMsg: {
     color: 'red',
     alignSelf: 'flex-start',
     width: scale(250),
     marginLeft: scale(25),
     marginTop: scale(5),
+  },
+  container: {
+    marginTop: scale(15),
+    backgroundColor: 'white',
+  },
+  dropdown: {
+    height: scale(50),
+    width: scale(300),
+    borderColor: 'black',
+    borderWidth: 0.5,
+    borderRadius: 9,
+    paddingHorizontal: 8,
+    alignItems: 'center',
+  },
+  icon: {
+    marginRight: 5,
+  },
+  label: {
+    position: 'absolute',
+    backgroundColor: 'white',
+    left: 22,
+    top: 8,
+    zIndex: 999,
+    paddingHorizontal: 8,
+    fontSize: scale(16),
+  },
+  placeholderStyle: {
+    fontSize: scale(16),
+  },
+  selectedTextStyle: {
+    fontSize: scale(16),
+  },
+  iconStyle: {
+    width: 20,
+    height: 20,
+  },
+  inputSearchStyle: {
+    height: 40,
+    fontSize: scale(16),
   },
 });
