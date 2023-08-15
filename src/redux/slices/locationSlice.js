@@ -1,7 +1,7 @@
 import {createSlice} from '@reduxjs/toolkit';
-import {getLocation} from '../actions/getLocations';
+import {getLocation} from '../actions/locationAction';
 const initialState = {
-  locations: [],
+  locationsList: [],
   error: null,
   loading: false,
 };
@@ -18,7 +18,7 @@ const locationSlice = createSlice({
     },
     [getLocation.fulfilled]: (state, {payload}) => {
       state.loading = false;
-      state.locations = payload?.result;
+      state.locationsList = payload?.result;
       console.log('success', JSON.stringify(payload?.result, null, 2));
     },
     [getLocation.rejected]: (state, {payload}) => {

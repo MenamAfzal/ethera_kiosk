@@ -34,11 +34,12 @@ const authSlice = createSlice({
       state.loading = false;
       state.isLoggedIn = true; // login successful
       state.userToken = payload?.access;
+      state.error = null;
       console.log('success', JSON.stringify(payload?.access, null, 2));
     },
     [loginUser.rejected]: (state, {payload}) => {
       state.loading = false;
-      state.error = payload.data;
+      state.error = 'Invalid Credentials';
       console.log('payload in rejected', JSON.stringify(payload, null, 2));
     },
   },
