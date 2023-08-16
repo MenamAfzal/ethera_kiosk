@@ -37,16 +37,18 @@ const Login = () => {
   const dispatch = useDispatch();
   const authSelector = useSelector(state => state?.auth);
   const location = useSelector(state => state?.location?.locationsList);
-  const [value, setValue] = useState(null);
+
   const [locationError, setLocationError] = useState('');
+  const [value, setValue] = useState(null);
   const [isFocus, setIsFocus] = useState(false);
   const [locationList, setLocationList] = useState([]);
-  console.log('value', value);
 
-  const submitHandler = (values: {email: string; password: string}) => {
+  const submitHandler = async (values: {email: string; password: string}) => {
     if (!value) {
       setLocationError('Please Set a Location');
     } else {
+      await AsyncStorage.setItem('locationId', value);
+
       //@ts-ignore
       dispatch(loginUser(values));
     }
@@ -54,7 +56,7 @@ const Login = () => {
 
   const isAuthenticated = async () => {
     if (authSelector?.isLoggedIn) {
-      await AsyncStorage.setItem('token', authSelector?.token);
+      await AsyncStorage.setItem('token', authSelector?.userToken);
     }
   };
 
