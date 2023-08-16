@@ -6,6 +6,7 @@ import {
   StyleSheet,
   TextInput,
   Image,
+  ActivityIndicator,
 } from 'react-native';
 import {scale} from 'react-native-size-matters';
 import {useNavigation} from '@react-navigation/native';
@@ -31,7 +32,7 @@ const DashBoard = () => {
 
   const dispatch = useDispatch();
   const providers = useSelector(state => state?.provider?.providerList);
-  const checkInSuccess = useSelector(state => state?.checkIn?.success);
+  const checkInSelector = useSelector(state => state?.checkIn);
   const onSubmitPress = async () => {
     const params = {id: value, client_initials: nameInitials};
 
@@ -68,130 +69,143 @@ const DashBoard = () => {
   }, [providers]);
 
   useEffect(() => {
-    if (checkInSuccess) {
+    if (checkInSelector?.success) {
       setTime(getCurrentTime());
-      console.log(time);
     }
-  }, [checkInSuccess]);
+  }, [checkInSelector?.success]);
 
   return (
-    <View style={styles.baseContainer}>
-      <View
-        style={{
-          marginTop: scale(30),
-        }}>
-        <Logo />
-      </View>
-
-      <Text style={styles.appointmentText}>Appointment Check-In</Text>
-      <Text style={styles.date}>{currentDate()}</Text>
-      {checkInSuccess ? (
-        <>
-          <Text style={styles.text1}>Thank You for checking in!</Text>
-          <Text style={styles.text2}>
-            Please make yourself comfortable and your provider will be out to
-            greet you shortly.
-          </Text>
-        </>
-      ) : null}
-
-      <View style={styles.container}>
-        {selectedProvider ? (
-          <>
-            <Image
-              source={
-                selectedProvider?.avatar
-                  ? {uri: selectedProvider?.avatar}
-                  : icons?.noImg
-              }
-              style={styles.img}
-            />
-            <View style={{marginLeft: scale(10), justifyContent: 'center'}}>
-              <Text style={styles.upperText}>{selectedProvider?.label}</Text>
-              {selectedProvider?.lisence?.map((item, index) => {
-                return (
-                  <Text key={index} style={styles.lowerText}>
-                    #{item?.license_number}
-                  </Text>
-                );
-              })}
-            </View>
-          </>
-        ) : (
-          <Text style={styles.middleText}>Nothing To Show</Text>
-        )}
-      </View>
-      {!checkInSuccess ? (
-        <>
-          <View style={styles.containerDropdown}>
-            <Dropdown
-              style={[styles.dropdown, isFocus && {borderColor: 'black'}]}
-              placeholderStyle={styles.placeholderStyle}
-              selectedTextStyle={styles.selectedTextStyle}
-              inputSearchStyle={styles.inputSearchStyle}
-              iconStyle={styles.iconStyle}
-              data={providerList}
-              maxHeight={300}
-              labelField="label"
-              valueField="value"
-              placeholder={!isFocus ? 'Select Provider Name' : '...'}
-              value={value}
-              onFocus={() => {
-                setIsFocus(true);
-              }}
-              onBlur={() => setIsFocus(false)}
-              onChange={item => {
-                //@ts-ignore
-                setValue(item.value);
-                setIsFocus(false);
-                setSelectedProvider(item);
-              }}
-            />
-          </View>
-          <Text style={styles.date}>
-            Please input your first and last initials
-          </Text>
-          <TextInput
-            placeholder="AA"
-            placeholderTextColor={colors.bodyTextColor}
-            style={styles.initialContainer}
-            onChangeText={text => {
-              setNameInitials(text), console.log(text);
-            }}
-            value={nameInitials}
-            underlineColorAndroid="transparent"
-          />
-        </>
-      ) : null}
-      {checkInSuccess ? (
-        <View style={styles.checkedIn}>
-          <Text
-            style={{
-              fontSize: scale(14),
-              color: colors.white,
-              fontWeight: '500',
-            }}>
-            Check-In at {time}
-          </Text>
+    <KeyboardAwareScrollView
+      enableOnAndroid={true}
+      contentContainerStyle={{flexGrow: 1}}
+      bounces={false}
+      showsVerticalScrollIndicator={false}
+      scrollEnabled={true}
+      scrollToOverflowEnabled={true}
+      enableAutomaticScroll={true}
+      extraHeight={150}>
+      <View style={styles.baseContainer}>
+        <View
+          style={{
+            marginTop: scale(30),
+          }}>
+          <Logo />
         </View>
-      ) : null}
 
-      {value && nameInitials && !checkInSuccess ? (
-        <TouchableOpacity onPress={onSubmitPress}>
-          <View style={styles.submitButton}>
-            <Text style={styles.buttonText}>Submit</Text>
-          </View>
-        </TouchableOpacity>
-      ) : null}
+        <Text style={styles.appointmentText}>Appointment Check-In</Text>
+        <Text style={styles.date}>{currentDate()}</Text>
+        {checkInSelector?.success ? (
+          <>
+            <Text style={styles.text1}>Thank You for checking in!</Text>
+            <Text style={styles.text2}>
+              Please make yourself comfortable and your provider will be out to
+              greet you shortly.
+            </Text>
+          </>
+        ) : null}
 
-      {checkInSuccess ? (
-        <TouchableOpacity onPress={onClosePress}>
-          <View style={styles.submitButton}>
-            <Text style={styles.buttonText}>Close</Text>
+        <View style={styles.container}>
+          {selectedProvider ? (
+            <>
+              <Image
+                source={
+                  selectedProvider?.avatar
+                    ? {uri: selectedProvider?.avatar}
+                    : icons?.noImg
+                }
+                style={styles.img}
+              />
+              <View style={{marginLeft: scale(10), justifyContent: 'center'}}>
+                <Text style={styles.upperText}>{selectedProvider?.label}</Text>
+                {selectedProvider?.lisence?.map((item, index) => {
+                  return (
+                    <Text key={index} style={styles.lowerText}>
+                      #{item?.license_number}
+                    </Text>
+                  );
+                })}
+              </View>
+            </>
+          ) : (
+            <Text style={styles.middleText}>Nothing To Show</Text>
+          )}
+        </View>
+        {!checkInSelector?.success ? (
+          <>
+            <View style={styles.containerDropdown}>
+              <Dropdown
+                style={[styles.dropdown, isFocus && {borderColor: 'black'}]}
+                placeholderStyle={styles.placeholderStyle}
+                selectedTextStyle={styles.selectedTextStyle}
+                inputSearchStyle={styles.inputSearchStyle}
+                iconStyle={styles.iconStyle}
+                data={providerList}
+                maxHeight={300}
+                labelField="label"
+                valueField="value"
+                placeholder={!isFocus ? 'Select Provider Name' : '...'}
+                value={value}
+                onFocus={() => {
+                  setIsFocus(true);
+                }}
+                onBlur={() => setIsFocus(false)}
+                onChange={item => {
+                  //@ts-ignore
+                  setValue(item.value);
+                  setIsFocus(false);
+                  setSelectedProvider(item);
+                }}
+              />
+            </View>
+            <Text style={styles.date}>
+              Please input your first and last initials
+            </Text>
+            <TextInput
+              placeholder="AA"
+              placeholderTextColor={colors.bodyTextColor}
+              style={styles.initialContainer}
+              onChangeText={text => {
+                setNameInitials(text);
+              }}
+              value={nameInitials}
+              underlineColorAndroid="transparent"
+            />
+          </>
+        ) : null}
+        {checkInSelector?.success ? (
+          <View style={styles.checkedIn}>
+            <Text
+              style={{
+                fontSize: scale(14),
+                color: colors.white,
+                fontWeight: '500',
+              }}>
+              Check-In at {time}
+            </Text>
           </View>
-        </TouchableOpacity>
-      ) : null}
-    </View>
+        ) : null}
+
+        {value && nameInitials && !checkInSelector?.success ? (
+          <TouchableOpacity onPress={onSubmitPress}>
+            <View style={styles.submitButton}>
+              {checkInSelector?.loading ? (
+                <ActivityIndicator color={'#fff'} />
+              ) : (
+                <Text style={styles.buttonText}>Submit</Text>
+              )}
+            </View>
+          </TouchableOpacity>
+        ) : null}
+
+        {checkInSelector?.success ? (
+          <TouchableOpacity onPress={onClosePress}>
+            <View style={styles.submitButton}>
+              <Text style={styles.buttonText}>Close</Text>
+            </View>
+          </TouchableOpacity>
+        ) : null}
+      </View>
+    </KeyboardAwareScrollView>
   );
 };
 
@@ -296,7 +310,7 @@ const styles = StyleSheet.create({
   },
   containerDropdown: {
     marginTop: scale(15),
-    backgroundColor: 'white',
+    // backgroundColor: 'white',
   },
   dropdown: {
     height: scale(50),
@@ -306,6 +320,7 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     paddingHorizontal: 8,
     alignItems: 'center',
+    backgroundColor: 'white',
   },
   icon: {
     marginRight: 5,
@@ -321,9 +336,13 @@ const styles = StyleSheet.create({
   },
   placeholderStyle: {
     fontSize: scale(16),
+    color: 'black',
+    fontWeight: '400',
   },
   selectedTextStyle: {
     fontSize: scale(16),
+    color: 'black',
+    fontWeight: '400',
   },
   iconStyle: {
     width: 20,

@@ -6,7 +6,7 @@ import {
   Image,
   StyleSheet,
   TextInput,
-  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import {scale} from 'react-native-size-matters';
 import {useNavigation} from '@react-navigation/native';
@@ -17,6 +17,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Dropdown} from 'react-native-element-dropdown';
 import {ActivityIndicator} from 'react-native';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 
 import {colors} from '../../theme';
 import Logo from '../../components/Logo';
@@ -78,7 +79,14 @@ const Login = () => {
   }, [location]);
 
   return (
-    <KeyboardAvoidingView style={{flex: 1}}>
+    <KeyboardAwareScrollView
+      enableOnAndroid={true}
+      contentContainerStyle={{flexGrow: 1}}
+      bounces={false}
+      showsVerticalScrollIndicator={false}
+      scrollEnabled={true}
+      scrollToOverflowEnabled={true}
+      enableAutomaticScroll={true}>
       <View style={styles.baseContainer}>
         <View
           style={{
@@ -134,7 +142,6 @@ const Login = () => {
                   underlineColorAndroid="transparent"
                   // @ts-ignore
                   onSubmitEditing={() => password_ref?.current.focus()}
-                  autoCapitalize="words"
                   autoFocus={true}
                 />
               </View>
@@ -222,7 +229,7 @@ const Login = () => {
           )}
         </Formik>
       </View>
-    </KeyboardAvoidingView>
+    </KeyboardAwareScrollView>
   );
 };
 
