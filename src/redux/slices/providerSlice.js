@@ -21,14 +21,14 @@ const providerSlice = createSlice({
       state.loading = false;
       state.providerList = payload?.result;
       console.log(
-        'success in provider ',
-        JSON.stringify(payload?.result, null, 2),
+        'success total provider count =',
+        JSON.stringify(payload?.count, null, 2),
       );
     },
     [getProvider.rejected]: (state, {payload}) => {
       state.loading = false;
       state.error = payload;
-      console.log('payload in providers', payload);
+      console.log('payload in rejected providers', payload);
     },
   },
 });

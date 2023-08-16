@@ -6,7 +6,7 @@ const backendURL = 'https://backend-dot-konav2-dev.wl.r.appspot.com';
 
 export const getProvider = createAsyncThunk(
   'get/provider',
-  async ({locationId}) => {
+  async locationId => {
     try {
       const token = await AsyncStorage.getItem('token');
       const config = {
@@ -18,9 +18,7 @@ export const getProvider = createAsyncThunk(
 
       const response = await axios.get(
         // `${backendURL}/api/login`,
-        // `https://backend-dot-konav2-dev.wl.r.appspot.com//api/locations/${locationId}/kiosk-providers`,
-        `https://backend-dot-konav2-dev.wl.r.appspot.com//api/locations/b832228d-ad6e-44c7-aa12-bf4a550e8714/kiosk-providers`,
-
+        `https://backend-dot-konav2-dev.wl.r.appspot.com/api/locations/${locationId}/kiosk-providers`,
         config,
       );
       return response?.data;
