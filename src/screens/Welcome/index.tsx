@@ -34,7 +34,7 @@ const DashBoard = () => {
       </Text>
 
       <View style={styles.container}>
-        <Image source={icons.demo} style={styles.img} />
+        <Image source={icons.noImg} style={styles.img} />
         <View style={{marginLeft: scale(10), justifyContent: 'center'}}>
           <Text style={styles.upperText}>
             Dr. Courtney Shen DeShetler, PsyD
