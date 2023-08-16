@@ -6,7 +6,7 @@ import {useNavigation} from '@react-navigation/native';
 import Logo from '../../components/Logo';
 import {colors} from '../../theme';
 import {icons} from '../../assets/icons';
-
+import {currentDate} from '../../utils/currentDate';
 const DashBoard = () => {
   const navigation = useNavigation();
 
@@ -25,7 +25,7 @@ const DashBoard = () => {
       </View>
 
       <Text style={styles.appointmentText}>Appointment Check-In</Text>
-      <Text style={styles.date}>Tuesday, August 2, 2022</Text>
+      <Text style={styles.date}>{currentDate()}</Text>
 
       <Text style={styles.text1}>Thank You for checking in!</Text>
       <Text style={styles.text2}>
@@ -44,7 +44,8 @@ const DashBoard = () => {
       </View>
 
       <View style={styles.input}>
-        <Text style={{fontSize: 15, color: colors.white, fontWeight: '500'}}>
+        <Text
+          style={{fontSize: scale(14), color: colors.white, fontWeight: '500'}}>
           Check-in at 3:07pm
         </Text>
       </View>
@@ -66,25 +67,25 @@ const styles = StyleSheet.create({
     backgroundColor: colors.base,
   },
   appointmentText: {
-    fontSize: 24,
+    fontSize: scale(24),
     color: colors.black,
     marginTop: scale(15),
     fontWeight: '500',
   },
   text1: {
-    fontSize: 24,
+    fontSize: scale(20),
     color: colors.black,
     marginTop: scale(15),
     fontWeight: '500',
   },
   text2: {
-    fontSize: 15,
+    fontSize: scale(14),
     color: colors.black,
     fontWeight: '500',
     marginHorizontal: scale(10),
   },
   date: {
-    fontSize: 18,
+    fontSize: scale(14),
     color: colors.black,
     marginTop: scale(10),
     fontWeight: '500',
@@ -97,7 +98,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
     padding: 10,
     marginTop: scale(15),
-    fontSize: 20,
   },
   input: {
     height: scale(30),
@@ -107,9 +107,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: scale(15),
-    fontSize: 20,
   },
-  buttonText: {color: colors.white, fontSize: 22, fontWeight: '500'},
+  buttonText: {color: colors.white, fontSize: scale(20), fontWeight: '500'},
 
   submitButton: {
     height: scale(40),
@@ -125,6 +124,6 @@ const styles = StyleSheet.create({
     width: scale(60),
     borderRadius: 15,
   },
-  upperText: {fontSize: 15, color: colors.black, fontWeight: '600'},
-  lowerText: {fontSize: 15, color: colors.bodyTextColor},
+  upperText: {fontSize: scale(14), color: colors.black, fontWeight: '600'},
+  lowerText: {fontSize: scale(14), color: colors.bodyTextColor},
 });

@@ -7,6 +7,7 @@ import Logo from '../../components/Logo';
 import {colors} from '../../theme';
 import {useDispatch} from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {currentDate} from '../../utils/currentDate';
 
 const CheckIn = () => {
   const navigation = useNavigation();
@@ -37,7 +38,7 @@ const CheckIn = () => {
       </View>
 
       <Text style={styles.welcomText}>Welcome to Ethera</Text>
-      <Text style={styles.date}>Tuesday, August 2, 2022</Text>
+      <Text style={styles.date}>{currentDate()}</Text>
 
       <TouchableOpacity onPress={OnCheckinPress}>
         <View style={styles.checkinButton}>

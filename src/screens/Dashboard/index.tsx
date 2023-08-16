@@ -9,13 +9,13 @@ import {
 } from 'react-native';
 import {scale} from 'react-native-size-matters';
 import {useNavigation} from '@react-navigation/native';
-import {AntDesign} from '@expo/vector-icons';
 import {Dropdown} from 'react-native-element-dropdown';
 
 import Logo from '../../components/Logo';
 import {colors} from '../../theme';
 import {icons} from '../../assets/icons';
 import {useSelector} from 'react-redux';
+import {currentDate} from '../../utils/currentDate';
 
 const DashBoard = () => {
   const navigation = useNavigation();
@@ -48,7 +48,7 @@ const DashBoard = () => {
       </View>
 
       <Text style={styles.appointmentText}>Appointment Check-In</Text>
-      <Text style={styles.date}>Tuesday, August 2, 2022</Text>
+      <Text style={styles.date}>{currentDate()}</Text>
 
       <View style={styles.container}>
         <Image source={icons.demo} style={styles.img} />
@@ -172,8 +172,8 @@ const styles = StyleSheet.create({
     width: scale(60),
     borderRadius: 15,
   },
-  upperText: {fontSize: scale(16), color: colors.black, fontWeight: '600'},
-  lowerText: {fontSize: scale(16), color: colors.bodyTextColor},
+  upperText: {fontSize: scale(14), color: colors.black, fontWeight: '600'},
+  lowerText: {fontSize: scale(14), color: colors.bodyTextColor},
   input: {
     height: scale(50),
     width: scale(280),
