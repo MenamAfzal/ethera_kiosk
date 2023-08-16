@@ -1,0 +1,37 @@
+import axios from 'axios';
+import {createAsyncThunk} from '@reduxjs/toolkit';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const backendURL = 'https://backend-dot-konav2-dev.wl.r.appspot.com';
+
+export const getProvider = createAsyncThunk(
+  'get/provider',
+  async ({locationId}) => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      const config = {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      };
+
+      const response = await axios.get(
+        // `${backendURL}/api/login`,
+        // `https://backend-dot-konav2-dev.wl.r.appspot.com//api/locations/${locationId}/kiosk-providers`,
+        `https://backend-dot-konav2-dev.wl.r.appspot.com//api/locations/b832228d-ad6e-44c7-aa12-bf4a550e8714/kiosk-providers`,
+
+        config,
+      );
+      return response?.data;
+    } catch (error) {
+      // return custom error message from backend if present
+      if (error.response && error.response.data.message) {
+        console.log('error', error);
+        return rejectWithValue(error.response.data.message);
+      } else {
+        return rejectWithValue(error.message);
+      }
+    }
+  },
+);

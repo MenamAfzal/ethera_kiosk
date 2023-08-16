@@ -1,18 +1,31 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 import {scale} from 'react-native-size-matters';
 import {useNavigation} from '@react-navigation/native';
-
+import {getProvider} from '../../redux/actions/providerAction';
 import Logo from '../../components/Logo';
 import {colors} from '../../theme';
+import {useDispatch} from 'react-redux';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const CheckIn = () => {
   const navigation = useNavigation();
+  const dispatch = useDispatch();
 
   const OnCheckinPress = () => {
     //@ts-ignore
     navigation.navigate('DashBoard');
   };
+
+  const fetchProvider = async () => {
+    const locationId = await AsyncStorage.getItem('locationId');
+    //@ts-ignore
+    dispatch(getProvider(locationId));
+  };
+
+  useEffect(() => {
+    fetchProvider();
+  }, []);
 
   return (
     <View style={styles.baseContainer}>

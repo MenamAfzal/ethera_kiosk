@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -10,18 +10,33 @@ import {
 import {scale} from 'react-native-size-matters';
 import {useNavigation} from '@react-navigation/native';
 import {AntDesign} from '@expo/vector-icons';
+import {Dropdown} from 'react-native-element-dropdown';
 
 import Logo from '../../components/Logo';
 import {colors} from '../../theme';
 import {icons} from '../../assets/icons';
+import {useSelector} from 'react-redux';
 
 const DashBoard = () => {
   const navigation = useNavigation();
+  const [value, setValue] = useState(null);
+  const [isFocus, setIsFocus] = useState(false);
+  const [providerList, setProviderList] = useState([]);
 
+  const providers = useSelector(state => state?.provider?.providerList);
+  console.log('providers', providers);
   const onSubmitPress = () => {
     //@ts-ignore
     navigation.navigate('Welcome');
   };
+
+  useEffect(() => {
+    const data = providers.map((item, index) => ({
+      label: item.name,
+      value: item.id,
+    }));
+    setProviderList(data);
+  }, [providers]);
 
   return (
     <View style={styles.baseContainer}>
@@ -45,14 +60,30 @@ const DashBoard = () => {
         </View>
       </View>
 
-      <View style={styles.input}>
-        <Text style={{fontSize: 20, color: colors.bodyTextColor, flexGrow: 1}}>
-          Provider Name
-        </Text>
-        <View>
-          <AntDesign name="caretup" size={12} color="black" />
-          <AntDesign name="caretdown" size={12} color="black" />
-        </View>
+      <View style={styles.containerDropdown}>
+        {/* {renderLabel()} */}
+        <Dropdown
+          style={[styles.dropdown, isFocus && {borderColor: 'black'}]}
+          placeholderStyle={styles.placeholderStyle}
+          selectedTextStyle={styles.selectedTextStyle}
+          inputSearchStyle={styles.inputSearchStyle}
+          iconStyle={styles.iconStyle}
+          data={providerList}
+          maxHeight={300}
+          labelField="label"
+          valueField="value"
+          placeholder={!isFocus ? 'Select Provider Name' : '...'}
+          value={value}
+          onFocus={() => {
+            setIsFocus(true);
+          }}
+          onBlur={() => setIsFocus(false)}
+          onChange={item => {
+            //@ts-ignore
+            setValue(item.value);
+            setIsFocus(false);
+          }}
+        />
       </View>
       <Text style={styles.date}>Please input your first and last initials</Text>
       <TextInput
@@ -81,13 +112,13 @@ const styles = StyleSheet.create({
     backgroundColor: colors.base,
   },
   appointmentText: {
-    fontSize: 28,
+    fontSize: scale(24),
     color: colors.black,
     marginTop: scale(15),
     fontWeight: '500',
   },
   date: {
-    fontSize: 18,
+    fontSize: scale(14),
     color: colors.black,
     marginTop: scale(10),
     fontWeight: '500',
@@ -100,21 +131,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
     padding: 10,
     marginTop: scale(15),
-    fontSize: 20,
+    fontSize: scale(20),
   },
-  input: {
-    height: scale(50),
-    width: scale(280),
-    borderRadius: 50,
-    backgroundColor: colors.white,
-    padding: 10,
-    marginTop: scale(15),
-    borderColor: colors.black,
-    borderWidth: 0.5,
-    fontSize: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
+
   checkinButton: {
     height: scale(140),
     width: scale(270),
@@ -124,7 +143,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginTop: scale(30),
   },
-  buttonText: {color: colors.white, fontSize: 22, fontWeight: '500'},
+  buttonText: {color: colors.white, fontSize: scale(18), fontWeight: '500'},
   initialContainer: {
     height: scale(50),
     width: scale(130),
@@ -133,7 +152,7 @@ const styles = StyleSheet.create({
     marginTop: scale(15),
     borderColor: colors.black,
     borderWidth: 0.5,
-    fontSize: 20,
+    fontSize: scale(18),
     justifyContent: 'center',
     alignItems: 'center',
     textAlign: 'center',
@@ -153,6 +172,58 @@ const styles = StyleSheet.create({
     width: scale(60),
     borderRadius: 15,
   },
-  upperText: {fontSize: 15, color: colors.black, fontWeight: '600'},
-  lowerText: {fontSize: 15, color: colors.bodyTextColor},
+  upperText: {fontSize: scale(16), color: colors.black, fontWeight: '600'},
+  lowerText: {fontSize: scale(16), color: colors.bodyTextColor},
+  input: {
+    height: scale(50),
+    width: scale(280),
+    borderRadius: 50,
+    backgroundColor: colors.white,
+    padding: 10,
+    marginTop: scale(15),
+    borderColor: colors.black,
+    borderWidth: 0.5,
+    fontSize: scale(20),
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  containerDropdown: {
+    marginTop: scale(15),
+    backgroundColor: 'white',
+  },
+  dropdown: {
+    height: scale(50),
+    width: scale(280),
+    borderColor: 'black',
+    borderWidth: 0.5,
+    borderRadius: 50,
+    paddingHorizontal: 8,
+    alignItems: 'center',
+  },
+  icon: {
+    marginRight: 5,
+  },
+  label: {
+    position: 'absolute',
+    backgroundColor: 'white',
+    left: 22,
+    top: 8,
+    zIndex: 999,
+    paddingHorizontal: 8,
+    fontSize: scale(16),
+  },
+  placeholderStyle: {
+    fontSize: scale(16),
+  },
+  selectedTextStyle: {
+    fontSize: scale(16),
+  },
+  iconStyle: {
+    width: 20,
+    height: 20,
+  },
+  inputSearchStyle: {
+    height: 40,
+    fontSize: scale(16),
+  },
 });
