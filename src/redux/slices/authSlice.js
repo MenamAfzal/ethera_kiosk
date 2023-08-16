@@ -35,7 +35,7 @@ const authSlice = createSlice({
       state.isLoggedIn = true; // login successful
       state.userToken = payload?.access;
       state.error = null;
-      console.log('success', JSON.stringify(payload?.access, null, 2));
+      console.log('token', JSON.stringify(payload?.access, null, 2));
     },
     [loginUser.rejected]: (state, {payload}) => {
       state.loading = false;
