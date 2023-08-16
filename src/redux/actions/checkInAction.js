@@ -1,12 +1,14 @@
 import axios from 'axios';
 import {createAsyncThunk} from '@reduxjs/toolkit';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const backendURL = 'https://backend-dot-konav2-dev.wl.r.appspot.com';
 
 export const checkIn = createAsyncThunk(
-  'get/provider',
-  async ({locationId}) => {
+  'checkIn',
+  async ({id, client_initials}, {rejectWithValue}) => {
     try {
+      const token = await AsyncStorage.getItem('token');
       const config = {
         headers: {
           'Content-Type': 'application/json',
@@ -14,11 +16,13 @@ export const checkIn = createAsyncThunk(
         },
       };
 
-      const response = await axios.get(
+      const response = await axios.post(
         // `${backendURL}/api/login`,
-        // `https://backend-dot-konav2-dev.wl.r.appspot.com//api/locations/${locationId}/kiosk-providers`,
-        `https://backend-dot-konav2-dev.wl.r.appspot.com/api/api/kiosk-providers/aef90f7d-d0cd-4d4d-a805-3dc3105f0fec`,
-
+        `https://backend-dot-konav2-dev.wl.r.appspot.com/api/kiosk-providers`,
+        {
+          id,
+          client_initials,
+        },
         config,
       );
       return response?.data;

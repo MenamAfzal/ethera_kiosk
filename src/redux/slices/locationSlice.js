@@ -19,7 +19,10 @@ const locationSlice = createSlice({
     [getLocation.fulfilled]: (state, {payload}) => {
       state.loading = false;
       state.locationsList = payload?.result;
-      console.log('success', JSON.stringify(payload?.result, null, 2));
+      console.log(
+        'success total location count =',
+        JSON.stringify(payload?.count, null, 2),
+      );
     },
     [getLocation.rejected]: (state, {payload}) => {
       state.loading = false;

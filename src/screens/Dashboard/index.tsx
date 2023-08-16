@@ -10,33 +10,69 @@ import {
 import {scale} from 'react-native-size-matters';
 import {useNavigation} from '@react-navigation/native';
 import {Dropdown} from 'react-native-element-dropdown';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 
 import Logo from '../../components/Logo';
 import {colors} from '../../theme';
-import {icons} from '../../assets/icons';
-import {useSelector} from 'react-redux';
+import {useSelector, useDispatch} from 'react-redux';
 import {currentDate} from '../../utils/currentDate';
+import {checkIn} from '../../redux/actions/checkInAction';
+import {icons} from '../../assets/icons';
+import {setCheckIn} from '../../redux/slices/checkInSlice';
 
 const DashBoard = () => {
   const navigation = useNavigation();
   const [value, setValue] = useState(null);
   const [isFocus, setIsFocus] = useState(false);
   const [providerList, setProviderList] = useState([]);
+  const [nameInitials, setNameInitials] = useState('');
+  const [selectedProvider, setSelectedProvider] = useState(null);
+  const [time, setTime] = useState('');
 
+  const dispatch = useDispatch();
   const providers = useSelector(state => state?.provider?.providerList);
-  console.log('providers', providers);
-  const onSubmitPress = () => {
+  const checkInSuccess = useSelector(state => state?.checkIn?.success);
+  const onSubmitPress = async () => {
+    const params = {id: value, client_initials: nameInitials};
+
     //@ts-ignore
-    navigation.navigate('Welcome');
+    dispatch(checkIn(params));
+    // navigation.navigate('Welcome');
   };
 
+  const onClosePress = () => {
+    dispatch(setCheckIn({success: true}));
+    //@ts-ignore
+    navigation.navigate('CheckIn');
+  };
+
+  const getCurrentTime = () => {
+    const now = new Date();
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+    const period = hours >= 12 ? 'pm' : 'am';
+
+    const formattedHours = hours % 12 === 0 ? 12 : hours % 12;
+    const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
+
+    return `${formattedHours}:${formattedMinutes} ${period}`;
+  };
   useEffect(() => {
     const data = providers.map((item, index) => ({
-      label: item.name,
-      value: item.id,
+      label: item?.first_name + ' ' + item?.middle_name + ' ' + item?.last_name,
+      value: item?.id,
+      lisence: item?.provider_license,
+      avatar: item?.avatar,
     }));
     setProviderList(data);
   }, [providers]);
+
+  useEffect(() => {
+    if (checkInSuccess) {
+      setTime(getCurrentTime());
+      console.log(time);
+    }
+  }, [checkInSuccess]);
 
   return (
     <View style={styles.baseContainer}>
@@ -49,56 +85,112 @@ const DashBoard = () => {
 
       <Text style={styles.appointmentText}>Appointment Check-In</Text>
       <Text style={styles.date}>{currentDate()}</Text>
+      {checkInSuccess ? (
+        <>
+          <Text style={styles.text1}>Thank You for checking in!</Text>
+          <Text style={styles.text2}>
+            Please make yourself comfortable and your provider will be out to
+            greet you shortly.
+          </Text>
+        </>
+      ) : null}
 
       <View style={styles.container}>
-        <Image source={icons.demo} style={styles.img} />
-        <View style={{marginLeft: scale(10), justifyContent: 'center'}}>
-          <Text style={styles.upperText}>
-            Dr. Courtney Shen DeShetler, PsyD
+        {selectedProvider ? (
+          <>
+            <Image
+              source={
+                selectedProvider?.avatar
+                  ? {uri: selectedProvider?.avatar}
+                  : icons?.noImg
+              }
+              style={styles.img}
+            />
+            <View style={{marginLeft: scale(10), justifyContent: 'center'}}>
+              <Text style={styles.upperText}>{selectedProvider?.label}</Text>
+              {selectedProvider?.lisence?.map((item, index) => {
+                return (
+                  <Text key={index} style={styles.lowerText}>
+                    #{item?.license_number}
+                  </Text>
+                );
+              })}
+            </View>
+          </>
+        ) : (
+          <Text style={styles.middleText}>Nothing To Show</Text>
+        )}
+      </View>
+      {!checkInSuccess ? (
+        <>
+          <View style={styles.containerDropdown}>
+            <Dropdown
+              style={[styles.dropdown, isFocus && {borderColor: 'black'}]}
+              placeholderStyle={styles.placeholderStyle}
+              selectedTextStyle={styles.selectedTextStyle}
+              inputSearchStyle={styles.inputSearchStyle}
+              iconStyle={styles.iconStyle}
+              data={providerList}
+              maxHeight={300}
+              labelField="label"
+              valueField="value"
+              placeholder={!isFocus ? 'Select Provider Name' : '...'}
+              value={value}
+              onFocus={() => {
+                setIsFocus(true);
+              }}
+              onBlur={() => setIsFocus(false)}
+              onChange={item => {
+                //@ts-ignore
+                setValue(item.value);
+                setIsFocus(false);
+                setSelectedProvider(item);
+              }}
+            />
+          </View>
+          <Text style={styles.date}>
+            Please input your first and last initials
           </Text>
-          <Text style={styles.lowerText}>License #PSY31253</Text>
+          <TextInput
+            placeholder="AA"
+            placeholderTextColor={colors.bodyTextColor}
+            style={styles.initialContainer}
+            onChangeText={text => {
+              setNameInitials(text), console.log(text);
+            }}
+            value={nameInitials}
+            underlineColorAndroid="transparent"
+          />
+        </>
+      ) : null}
+      {checkInSuccess ? (
+        <View style={styles.checkedIn}>
+          <Text
+            style={{
+              fontSize: scale(14),
+              color: colors.white,
+              fontWeight: '500',
+            }}>
+            Check-In at {time}
+          </Text>
         </View>
-      </View>
+      ) : null}
 
-      <View style={styles.containerDropdown}>
-        {/* {renderLabel()} */}
-        <Dropdown
-          style={[styles.dropdown, isFocus && {borderColor: 'black'}]}
-          placeholderStyle={styles.placeholderStyle}
-          selectedTextStyle={styles.selectedTextStyle}
-          inputSearchStyle={styles.inputSearchStyle}
-          iconStyle={styles.iconStyle}
-          data={providerList}
-          maxHeight={300}
-          labelField="label"
-          valueField="value"
-          placeholder={!isFocus ? 'Select Provider Name' : '...'}
-          value={value}
-          onFocus={() => {
-            setIsFocus(true);
-          }}
-          onBlur={() => setIsFocus(false)}
-          onChange={item => {
-            //@ts-ignore
-            setValue(item.value);
-            setIsFocus(false);
-          }}
-        />
-      </View>
-      <Text style={styles.date}>Please input your first and last initials</Text>
-      <TextInput
-        placeholder="AA"
-        placeholderTextColor={colors.bodyTextColor}
-        style={styles.initialContainer}
-        onChangeText={text => {}}
-        // value={description}
-        underlineColorAndroid="transparent"
-      />
-      <TouchableOpacity onPress={onSubmitPress}>
-        <View style={styles.submitButton}>
-          <Text style={styles.buttonText}>Submit</Text>
-        </View>
-      </TouchableOpacity>
+      {value && nameInitials && !checkInSuccess ? (
+        <TouchableOpacity onPress={onSubmitPress}>
+          <View style={styles.submitButton}>
+            <Text style={styles.buttonText}>Submit</Text>
+          </View>
+        </TouchableOpacity>
+      ) : null}
+
+      {checkInSuccess ? (
+        <TouchableOpacity onPress={onClosePress}>
+          <View style={styles.submitButton}>
+            <Text style={styles.buttonText}>Close</Text>
+          </View>
+        </TouchableOpacity>
+      ) : null}
     </View>
   );
 };
@@ -173,6 +265,12 @@ const styles = StyleSheet.create({
     borderRadius: 15,
   },
   upperText: {fontSize: scale(14), color: colors.black, fontWeight: '600'},
+  middleText: {
+    fontSize: scale(14),
+    color: colors.black,
+    fontWeight: '600',
+    alignSelf: 'center',
+  },
   lowerText: {fontSize: scale(14), color: colors.bodyTextColor},
   input: {
     height: scale(50),
@@ -186,6 +284,15 @@ const styles = StyleSheet.create({
     fontSize: scale(20),
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  checkedIn: {
+    height: scale(30),
+    width: scale(300),
+    borderRadius: 50,
+    backgroundColor: colors.blue,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: scale(15),
   },
   containerDropdown: {
     marginTop: scale(15),
@@ -225,5 +332,17 @@ const styles = StyleSheet.create({
   inputSearchStyle: {
     height: 40,
     fontSize: scale(16),
+  },
+  text1: {
+    fontSize: scale(20),
+    color: colors.black,
+    marginTop: scale(15),
+    fontWeight: '500',
+  },
+  text2: {
+    fontSize: scale(14),
+    color: colors.black,
+    fontWeight: '500',
+    marginHorizontal: scale(10),
   },
 });
