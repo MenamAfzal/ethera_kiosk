@@ -77,7 +77,7 @@ const DashBoard = () => {
   return (
     <KeyboardAwareScrollView
       enableOnAndroid={true}
-      contentContainerStyle={{flexGrow: 1}}
+      contentContainerStyle={{flexGrow: 1, backgroundColor: colors.base}}
       bounces={false}
       showsVerticalScrollIndicator={false}
       scrollEnabled={true}
